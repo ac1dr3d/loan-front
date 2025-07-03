@@ -1,0 +1,42 @@
+/build
+bootstrap.*
+classic.json*
+modern.json*
+.sencha
+
+# Ext JS build artifacts
+/build/
+workspace.json
+workspace/
+.deploy/
+archive/
+*.apk
+*.ipa
+
+# Sencha Cmd metadata
+.sencha/
+*.sencha
+
+# IDEs and system files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Node (if used in build tooling)
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+
+# OS-specific
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Compiled JS output (optional depending on how you commit code)
+classic/build/
+modern/build/
