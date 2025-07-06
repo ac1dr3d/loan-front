@@ -3,23 +3,33 @@ Ext.define("LoanFront.controller.Login", {
   alias: "controller.login",
 
   onLoginClick: function () {
-    var form = this.lookupReference("form");
+    var formCmp = this.lookupReference("form");
+    var form = formCmp.getForm();
 
     if (form.isValid()) {
+      var values = form.getValues();
+
       Ext.Ajax.request({
-        url: "/api/login",
+        url: "http://localhost:5021/api/auth/login",
         method: "POST",
-        params: form.getValues(),
-        success: function (response) {
-          localStorage.setItem(
-            "authToken",
-            Ext.decode(response.responseText).token,
-          );
-          this.getView().destroy();
-          Ext.create("LoanForm.view.main.Main");
+        headers: {
+          "Content-Type": "application/json",
         },
-        failure: function () {
-          Ext.Msg.alert("Error", "Invalid credentials");
+        jsonData: values,
+        success: function (response) {
+          var result = Ext.decode(response.responseText);
+          localStorage.setItem("authToken", result.token);
+
+          this.getView().destroy();
+
+          Ext.create("LoanFront.view.user.Main", {
+            plugins: "viewport",
+          });
+        },
+        failure: function (response) {
+          var res = Ext.decode(response.responseText, true);
+          var msg = res?.error || "Invalid credentials";
+          Ext.Msg.alert("შეცდომა", msg);
         },
         scope: this,
       });
@@ -27,16 +37,8 @@ Ext.define("LoanFront.controller.Login", {
   },
 
   onRegisterClick: function () {
-    // Open registration window or redirect
-    // window.location.href = '/register.html';
-
-    // Alternative: Open registration window
-    // Ext.create('LoanFront.view.register.Register').show();
-
-    // Close current login window
     this.getView().close();
 
-    // Open the registration window
     Ext.create("LoanFront.view.register.Register");
   },
 });

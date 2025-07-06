@@ -29,6 +29,17 @@ Ext.define("LoanFront.view.login.Login", {
         xtype: "textfield",
         allowBlank: false,
         margin: "0 0 10 0",
+        listeners: {
+          specialkey: function (field, e) {
+            if (e.getKey() === e.ENTER) {
+              const formCmp = field.up("form");
+              const controller = formCmp.lookupController();
+              if (controller && typeof controller.onLoginClick === "function") {
+                controller.onLoginClick();
+              }
+            }
+          },
+        },
       },
       items: [
         {

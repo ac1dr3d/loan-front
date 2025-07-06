@@ -38,20 +38,22 @@ Ext.define("LoanFront.view.register.RegisterController", {
           this, // keep controller scope
         );
       },
+
       failure: function (response) {
         const res = Ext.decode(response.responseText, true);
 
         if (res?.errors) {
           const errorMap = {};
           for (let field in res.errors) {
-            const lower = field.toLowerCase();
-            console.log(lower);
+            const lower = field.charAt(0).toLowerCase() + field.slice(1);
             errorMap[lower] = res.errors[field][0];
           }
-
+          const form = this.lookupReference("form").getForm();
           form.markInvalid(errorMap);
-        } else {
-          Ext.Msg.alert("შეცდომა", "დაფიქსირდა შეცდომა");
+        }
+
+        if (res?.error) {
+          Ext.Msg.alert("შეცდომა", res.error);
         }
       },
     });

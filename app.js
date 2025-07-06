@@ -2,6 +2,7 @@
  * This file launches the application by asking Ext JS to create
  * and launch() the Application class.
  */
+
 Ext.application({
   extend: "LoanFront.Application",
 
@@ -12,17 +13,31 @@ Ext.application({
     // so that application classes do not need to require each other.
     "LoanFront.*",
     "LoanFront.view.login.Login",
-    "LoanFront.view.main.Main",
+    "LoanFront.view.user.Main",
   ],
 
-  // The name of the initial iew to create.
-  // mainView: 'LoanFront.view.main.Main'
   launch: function () {
-    // Check if user is authenticated
     Ext.Ajax.request({
-      url: "/api/check-auth",
-      success: function () {
-        Ext.create("LoanFront.view.main.Main");
+      url: "http://localhost:5021/api/auth/check-auth",
+      success: function (response) {
+        const { role } = Ext.decode(response.responseText);
+        switch (role?.toLowerCase()) {
+          case "admin":
+            Ext.create("LoanFront.view.admin.Main", {
+              plugins: "viewport",
+            });
+            break;
+          case "user":
+            Ext.create("LoanFront.view.user.Main", {
+              plugins: "viewport",
+            });
+            break;
+          default:
+            Ext.create("LoanFront.view.user.Main", {
+              plugins: "viewport",
+            });
+            break;
+        }
       },
       failure: function () {
         Ext.create("LoanFront.view.login.Login");
@@ -30,6 +45,19 @@ Ext.application({
     });
   },
 });
+
+Ext.Ajax.on(
+  "beforerequest",
+  function (conn, options) {
+    if (!options.headers) {
+      options.headers = {};
+    }
+    const token = localStorage.getItem("authToken");
+
+    if (token) options.headers["Authorization"] = "Bearer " + token;
+  },
+  this,
+);
 
 Ext.apply(Ext.form.field.VTypes, {
   numeric: function (val) {
