@@ -39,17 +39,23 @@ Ext.define("LoanFront.view.register.RegisterController", {
         );
       },
 
-      failure: function (response) {
+      failure: (response) => {
         const res = Ext.decode(response.responseText, true);
 
         if (res?.errors) {
           const errorMap = {};
+          const allMessages = [];
+
           for (let field in res.errors) {
             const lower = field.charAt(0).toLowerCase() + field.slice(1);
-            errorMap[lower] = res.errors[field][0];
+            const message = res.errors[field][0];
+
+            errorMap[lower] = message;
+            allMessages.push(message);
           }
-          const form = this.lookupReference("form").getForm();
+
           form.markInvalid(errorMap);
+          Ext.Msg.alert("შეცდომა", allMessages.join("<br>"));
         }
 
         if (res?.error) {

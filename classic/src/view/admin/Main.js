@@ -1,6 +1,6 @@
 Ext.define("LoanFront.view.admin.Main", {
   extend: "Ext.tab.Panel",
-  xtype: "app-main",
+  xtype: "app-admin-main",
 
   requires: [
     "Ext.plugin.Viewport",
@@ -8,7 +8,6 @@ Ext.define("LoanFront.view.admin.Main", {
 
     "LoanFront.view.main.MainController",
     "LoanFront.view.main.MainModel",
-    "LoanFront.view.main.List",
   ],
 
   controller: "main",
