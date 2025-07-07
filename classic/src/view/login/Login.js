@@ -52,16 +52,38 @@ Ext.define("LoanFront.view.login.Login", {
           fieldLabel: "პაროლი",
           inputType: "password",
         },
-      ],
-      buttons: [
         {
-          text: "შესვლა",
-          formBind: true,
-          handler: "onLoginClick",
-        },
-        {
-          text: "სისტემაში რეგისტრაცია",
-          handler: "onRegisterClick",
+          xtype: "container",
+          layout: {
+            type: "hbox",
+            align: "middle",
+          },
+          defaults: {
+            flex: 0,
+          },
+          margin: "20 0 0 0",
+          items: [
+            {
+              xtype: "button",
+              text: "სისტემაში რეგისტრაცია",
+              handler: "onRegisterClick",
+              flex: 2,
+            },
+            {
+              xtype: "component",
+              flex: 1,
+            },
+            {
+              xtype: "button",
+              text: "შესვლა",
+              formBind: true,
+              handler: "onLoginClick",
+              flex: 1,
+              style: {
+                textAlign: "right",
+              },
+            },
+          ],
         },
       ],
     },

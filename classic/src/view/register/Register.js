@@ -89,12 +89,37 @@ Ext.define("LoanFront.view.register.Register", {
                 return true;
               },
             },
-          ],
-          buttons: [
-            { text: "< უკან", handler: "onBackToLogin" },
             {
-              text: "რეგისტრაცია",
-              handler: "onRegisterSubmit",
+              xtype: "container",
+              layout: {
+                type: "hbox",
+                align: "middle",
+              },
+              defaults: {
+                flex: 0,
+              },
+              margin: "20 0 0 0",
+              items: [
+                {
+                  xtype: "button",
+                  text: "< უკან",
+                  handler: "onBackToLogin",
+                  flex: 1,
+                },
+                {
+                  xtype: "component",
+                  flex: 1,
+                },
+                {
+                  xtype: "button",
+                  text: "რეგისტრაცია",
+                  handler: "onRegisterSubmit",
+                  flex: 1,
+                  style: {
+                    textAlign: "right",
+                  },
+                },
+              ],
             },
           ],
         },

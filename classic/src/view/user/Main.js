@@ -26,7 +26,7 @@ Ext.define("LoanFront.view.user.Main", {
     },
     title: {
       bind: {
-        text: "My Loans",
+        text: "ჩემი სესხები",
       },
       flex: 0,
     },
@@ -44,7 +44,7 @@ Ext.define("LoanFront.view.user.Main", {
       },
       {
         xtype: "button",
-        text: "Logout",
+        text: "გასვლა",
         iconCls: "fa fa-sign-out",
         margin: 5,
         handler: function () {
@@ -82,35 +82,119 @@ Ext.define("LoanFront.view.user.Main", {
 
   items: [
     {
-      title: "Home",
-      iconCls: "fa-home",
-      // The following grid shares a store with the classic version's grid as well!
+      title: "მოთხოვნილი სესხები",
+      iconCls: "fa-clipboard-list",
       items: [
         {
-          xtype: "mainlist",
+          xtype: "mainlist", // your existing loan list grid
         },
       ],
     },
     {
-      title: "Users",
-      iconCls: "fa-user",
-      bind: {
-        html: "{loremIpsum}",
-      },
-    },
-    {
-      title: "Groups",
-      iconCls: "fa-users",
-      bind: {
-        html: "{loremIpsum}",
-      },
-    },
-    {
-      title: "Settings",
-      iconCls: "fa-cog",
-      bind: {
-        html: "{loremIpsum}",
-      },
+      title: "ახლის მოთხოვნა",
+      iconCls: "fa-plus",
+
+      items: [
+        {
+          xtype: "form",
+          bodyPadding: 15,
+          maxWidth: 400,
+          defaults: {
+            xtype: "textfield",
+            anchor: "100%",
+            allowBlank: false,
+          },
+          items: [
+            {
+              fieldLabel: "სესხის ტიპი",
+              name: "loanTypeId",
+              xtype: "combobox",
+              store: {
+                type: "loantypes",
+              },
+              valueField: "id",
+              displayField: "name",
+              queryMode: "local",
+              forceSelection: true,
+              editable: false,
+              allowBlank: false,
+            },
+            {
+              fieldLabel: "თანხა",
+              name: "amount",
+              vtype: "numeric",
+              minValue: 1,
+            },
+            {
+              xtype: "combobox",
+              fieldLabel: "ვალუტა", // "Currency" in Georgian
+              name: "currencyId",
+              displayField: "name", // visible text (e.g. ლარი, დოლარი)
+              valueField: "id", // submitted value (e.g. 1, 2, 3)
+              queryMode: "local",
+              forceSelection: true,
+              editable: false,
+              allowBlank: false,
+              store: {
+                type: "currencies",
+              },
+            },
+            {
+              fieldLabel: "პერიოდი (თვეები)",
+              name: "term",
+              vtype: "numeric",
+              minValue: 1,
+            },
+            {
+              xtype: "container",
+              layout: {
+                type: "hbox",
+                align: "middle",
+              },
+              defaults: {
+                flex: 0,
+              },
+              margin: "20 0 0 0",
+              items: [
+                {
+                  text: "მოთხოვნის შექმნა",
+                  xtype: "button",
+                  formBind: true,
+
+                  handler: function (btn) {
+                    const form = btn.up("form");
+                    if (form.isValid()) {
+                      const values = form.getValues();
+
+                      Ext.Ajax.request({
+                        url: "http://localhost:3000/api/loans/request",
+                        method: "POST",
+                        jsonData: values,
+                        success: function () {
+                          Ext.Msg.alert("Success", "Loan request submitted.");
+                          form.reset();
+
+                          const tabPanel = btn.up("tabpanel");
+                          tabPanel.setActiveTab(0);
+                        },
+                        failure: function () {
+                          const tabPanel = btn.up("tabpanel");
+                          tabPanel.setActiveTab(0);
+                          // Ext.Msg.alert("Error", "Failed to submit loan request.");
+                        },
+                      });
+                    }
+                  },
+                },
+                {
+                  xtype: "component",
+                  flex: 1,
+                },
+              ],
+            },
+          ],
+        },
+      ],
     },
   ],
 });
