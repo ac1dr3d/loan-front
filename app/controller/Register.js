@@ -14,6 +14,8 @@ Ext.define("LoanFront.view.register.RegisterController", {
 
     const values = form.getValues();
     const email = values.email;
+    const formId = Ext.id();
+    form.owner.formId = formId;
 
     Ext.Ajax.request({
       url: "http://localhost:5021/api/auth/register",
@@ -22,6 +24,7 @@ Ext.define("LoanFront.view.register.RegisterController", {
         "Content-Type": "application/json",
       },
       jsonData: values,
+      formId: formId,
       success: (response, opts) => {
         Ext.Msg.alert(
           "წარმატება",
@@ -37,30 +40,6 @@ Ext.define("LoanFront.view.register.RegisterController", {
           },
           this, // keep controller scope
         );
-      },
-
-      failure: (response) => {
-        const res = Ext.decode(response.responseText, true);
-
-        if (res?.errors) {
-          const errorMap = {};
-          const allMessages = [];
-
-          for (let field in res.errors) {
-            const lower = field.charAt(0).toLowerCase() + field.slice(1);
-            const message = res.errors[field][0];
-
-            errorMap[lower] = message;
-            allMessages.push(message);
-          }
-
-          form.markInvalid(errorMap);
-          Ext.Msg.alert("შეცდომა", allMessages.join("<br>"));
-        }
-
-        if (res?.error) {
-          Ext.Msg.alert("შეცდომა", res.error);
-        }
       },
     });
   },

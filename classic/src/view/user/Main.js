@@ -5,12 +5,10 @@ Ext.define("LoanFront.view.user.Main", {
   requires: [
     "Ext.plugin.Viewport",
     "Ext.window.MessageBox",
-
-    "LoanFront.view.main.MainController",
-    "LoanFront.view.main.MainModel",
+    "LoanFront.controller.LoanController",
   ],
 
-  controller: "main",
+  controller: "loan",
   viewModel: "main",
 
   ui: "navigation",
@@ -140,7 +138,7 @@ Ext.define("LoanFront.view.user.Main", {
                 layout: {
                   type: "hbox",
                   align: "middle",
-                  pack: "center",
+                  pack: "end",
                 },
                 defaults: {
                   margin: "0 4",
@@ -161,6 +159,7 @@ Ext.define("LoanFront.view.user.Main", {
                   {
                     xtype: "button",
                     text: "ჩასწორება",
+                    itemId: "editBtn",
                     handler: (btn) => {
                       var rowIndex = btn
                         .up("gridview")
@@ -185,25 +184,14 @@ Ext.define("LoanFront.view.user.Main", {
                   {
                     xtype: "button",
                     text: "წაშლა", // Delete
-                    handler: function (btn) {
-                      const rec = btn.up("widgetcolumn").getWidgetRecord();
-                      // Handle delete logic
-                      Ext.Msg.confirm(
-                        "დასტური",
-                        "დარწმუნებული ხართ რომ გსურთ წაშლა?",
-                        function (choice) {
-                          if (choice === "yes") {
-                            // perform delete
-                            Ext.Msg.alert(
-                              "წაშლა",
-                              `წაიშალა სესხი ID ${rec.get("id")}`,
-                            );
-                          }
-                        },
-                      );
-                    },
+                    handler: "onDeleteLoan",
                   },
                 ],
+              },
+              onWidgetAttach: function (col, widget, rec) {
+                const editBtn = widget.down("#editBtn");
+                const statusId = rec.get("statusId") || 0;
+                editBtn.setVisible(statusId === 1);
               },
             },
           ],
@@ -223,47 +211,7 @@ Ext.define("LoanFront.view.user.Main", {
           buttons: [
             {
               text: "მოთხოვნის შექმნა",
-              handler: function (btn) {
-                const formPanel = btn.up("loan-form");
-                const form = formPanel.getForm();
-
-                if (form.isValid()) {
-                  const values = form.getValues();
-                  Ext.Ajax.request({
-                    url: "http://localhost:5021/api/loan/create",
-                    method: "POST",
-                    jsonData: values,
-                    success: function () {
-                      Ext.Msg.alert("წარმატება", "სესხი დამატებულია.");
-                      form.reset();
-
-                      const tabPanel = btn.up("tabpanel");
-                      const grid = tabPanel.down("grid");
-                      grid.getStore().reload();
-                      tabPanel.setActiveTab(0);
-                    },
-                    failure: (response) => {
-                      const res = Ext.decode(response.responseText, true);
-                      if (res?.errors) {
-                        const errorMap = {};
-                        const allMessages = [];
-
-                        for (let field in res.errors) {
-                          const lower =
-                            field.charAt(0).toLowerCase() + field.slice(1);
-                          const message = res.errors[field][0];
-
-                          errorMap[lower] = message;
-                          allMessages.push(message);
-                        }
-
-                        form.markInvalid(errorMap);
-                        Ext.Msg.alert("შეცდომა", allMessages.join("<br>"));
-                      }
-                    },
-                  });
-                }
-              },
+              handler: "onCreateLoan",
             },
             {
               xtype: "component",
