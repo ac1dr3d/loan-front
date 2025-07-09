@@ -122,7 +122,7 @@ Ext.define("LoanFront.view.user.Main", {
               renderer: function (value, meta, record) {
                 return record.getLoanStatus()?.get("name") || "";
               },
-              flex: 1,
+              width: 200,
             },
             {
               text: "ვადა (თვე)",
@@ -146,15 +146,9 @@ Ext.define("LoanFront.view.user.Main", {
                 items: [
                   {
                     xtype: "button",
-                    text: "გაგზავნა", // Confirm
-                    handler: function (btn) {
-                      const rec = btn.up("widgetcolumn").getWidgetRecord();
-                      // Handle confirm logic here
-                      Ext.Msg.alert(
-                        "დამტკიცება",
-                        `სესხი ID ${rec.get("id")} დადასტურდა.`,
-                      );
-                    },
+                    text: "გაგზავნა",
+                    handler: "onSendLoan",
+                    itemId: "sendBtn",
                   },
                   {
                     xtype: "button",
@@ -190,12 +184,14 @@ Ext.define("LoanFront.view.user.Main", {
               },
               onWidgetAttach: function (col, widget, rec) {
                 const editBtn = widget.down("#editBtn");
+                const sendBtn = widget.down("#sendBtn");
                 const statusId = rec.get("statusId") || 0;
                 editBtn.setVisible(statusId === 1);
+                sendBtn.setVisible(statusId === 1);
               },
             },
           ],
-          height: 500,
+          height: 700,
           width: 1200,
           scrollable: true,
         },

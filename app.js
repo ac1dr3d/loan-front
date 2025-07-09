@@ -21,6 +21,7 @@ Ext.application({
       url: "http://localhost:5021/api/auth/check-auth",
       success: function (response) {
         const { role } = Ext.decode(response.responseText);
+
         switch (role?.toLowerCase()) {
           case "admin":
             Ext.create("LoanFront.view.admin.Main", {

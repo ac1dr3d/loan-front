@@ -2,6 +2,40 @@ Ext.define("LoanFront.controller.LoanController", {
   extend: "Ext.app.ViewController",
   alias: "controller.loan",
 
+  init: function () {
+    const store = Ext.getStore("loans");
+
+    this.pollingInterval = setInterval(() => {
+      Ext.Ajax.request({
+        url: "http://localhost:5021/api/loan/all",
+        method: "GET",
+        success: function (response) {
+          const newLoanData = Ext.decode(response.responseText);
+          const store = Ext.getStore("loans");
+
+          const existingRecords = store.getData().items;
+          const existingMap = {};
+          existingRecords.forEach((rec) => {
+            existingMap[rec.get("id")] = rec;
+          });
+
+          newLoanData.forEach((newLoan) => {
+            const existing = existingMap[newLoan.id];
+            if (existing) {
+              if (existing?.data?.statusId !== newLoan?.statusId) {
+                const oldLoanStatus = existing.getLoanStatus();
+                oldLoanStatus.set("name", newLoan?.loanStatus?.name);
+                existing.set("statusId", newLoan?.statusId);
+              }
+            }
+          });
+        },
+        failure: function () {
+          console.warn("Failed to fetch loan records.");
+        },
+      });
+    }, 5000);
+  },
   onCreateLoan: function (btn) {
     const formPanel = btn.up("loan-form");
     const form = formPanel.getForm();
@@ -26,6 +60,37 @@ Ext.define("LoanFront.controller.LoanController", {
         },
       });
     }
+  },
+
+  onSendLoan: function (btn) {
+    var rowIndex = btn.up("gridview").indexOf(btn.el.up("table"));
+
+    const tabPanel = btn.up("tabpanel");
+    const grid = tabPanel.down("grid");
+    var record = grid.getStore().getAt(rowIndex);
+
+    Ext.Msg.show({
+      title: "დასტური",
+      message: "დარწმუნებული ხართ, რომ გსურთ სესხის მოთხოვნის გაგზავნა?",
+      buttons: Ext.Msg.YESNO,
+      buttonText: {
+        yes: "დიახ",
+        no: "არა",
+      },
+      icon: Ext.Msg.QUESTION,
+      fn: (btn) => {
+        if (btn !== "yes") return;
+
+        Ext.Ajax.request({
+          url: `http://localhost:5021/api/loan/${record.id}/send-loan-request`,
+          method: "PUT",
+          success: () => {
+            Ext.Msg.alert("წაშლა", "სესხის მოთხოვნა წარმატებით გადაიგზავნა.");
+            this.reloadLoans();
+          },
+        });
+      },
+    });
   },
 
   onUpdateLoan: function (btn) {

@@ -6,11 +6,10 @@ Ext.define("LoanFront.view.admin.Main", {
     "Ext.plugin.Viewport",
     "Ext.window.MessageBox",
 
-    "LoanFront.view.main.MainController",
-    "LoanFront.view.main.MainModel",
+    "LoanFront.controller.AdminController",
   ],
 
-  controller: "main",
+  controller: "admin",
   viewModel: "main",
 
   ui: "navigation",
@@ -25,7 +24,7 @@ Ext.define("LoanFront.view.admin.Main", {
     },
     title: {
       bind: {
-        text: "Loan Administration",
+        text: "ადმინისტრირება",
       },
       flex: 0,
     },
@@ -43,7 +42,7 @@ Ext.define("LoanFront.view.admin.Main", {
       },
       {
         xtype: "button",
-        text: "Logout",
+        text: "გასვლა",
         iconCls: "fa fa-sign-out",
         margin: 5,
         handler: function () {
@@ -81,35 +80,92 @@ Ext.define("LoanFront.view.admin.Main", {
 
   items: [
     {
-      title: "Home",
-      iconCls: "fa-home",
-      // The following grid shares a store with the classic version's grid as well!
+      title: "მოთხოვნილი სესხები",
+      iconCls: "fa-clipboard-list",
       items: [
         {
-          xtype: "mainlist",
+          xtype: "grid",
+          title: "სესხები",
+          store: {
+            type: "pending_loans",
+          },
+
+          columns: [
+            {
+              text: "თარიღი",
+              dataIndex: "createdAt",
+              xtype: "datecolumn",
+              format: "d/m/Y H:i:s",
+              flex: 1,
+            },
+            {
+              text: "თანხა",
+              dataIndex: "amount",
+              xtype: "numbercolumn",
+              flex: 1,
+            },
+            {
+              text: "ვალუტა",
+              renderer: function (value, meta, record) {
+                return record?.data?.currency?.name;
+              },
+              flex: 1,
+            },
+            {
+              text: "სესხის ტიპი",
+              renderer: function (value, meta, record) {
+                return record?.data?.loanType?.name;
+              },
+              flex: 1,
+            },
+            {
+              text: "სტატუსი",
+              renderer: function (value, meta, record) {
+                return record?.data?.loanStatus?.name;
+              },
+              width: 200,
+            },
+            {
+              text: "ვადა (თვე)",
+              dataIndex: "monthsTerm",
+              flex: 1,
+            },
+            {
+              xtype: "widgetcolumn",
+              text: "მოქმედებები",
+              width: 210,
+              widget: {
+                xtype: "container",
+                layout: {
+                  type: "hbox",
+                  align: "middle",
+                  pack: "end",
+                },
+                defaults: {
+                  margin: "0 4",
+                },
+                items: [
+                  {
+                    xtype: "button",
+                    text: "დამტკიცება",
+                    handler: "onApproveLoan",
+                    itemId: "approveBtn",
+                  },
+                  {
+                    xtype: "button",
+                    text: "უარყოფა", // Delete
+                    itemId: "rejectBtn",
+                    handler: "onRejectLoan",
+                  },
+                ],
+              },
+            },
+          ],
+          height: 700,
+          width: 1200,
+          scrollable: true,
         },
       ],
-    },
-    {
-      title: "Users",
-      iconCls: "fa-user",
-      bind: {
-        html: "{loremIpsum}",
-      },
-    },
-    {
-      title: "Groups",
-      iconCls: "fa-users",
-      bind: {
-        html: "{loremIpsum}",
-      },
-    },
-    {
-      title: "Settings",
-      iconCls: "fa-cog",
-      bind: {
-        html: "{loremIpsum}",
-      },
     },
   ],
 });
